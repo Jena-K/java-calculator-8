@@ -4,11 +4,17 @@ import java.util.Objects;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 // 모든 유효성 검사 로직을 담는 클래스
 public class InputValidator {
 
-    private static final Pattern CUSTOM_DELIMITER_PATTERN = Pattern.compile("^//([^0-9a-zA-Z\\s])\\n(.*)$", Pattern.DOTALL);
+    // 커스텀 구분자 패턴: 숫자만 제외, 영문자/특수문자/공백 모두 1글자 허용
+    // 개행 형식: 실제 개행 문자만 지원 (\n, \r\n, \r)
+    private static final Pattern CUSTOM_DELIMITER_PATTERN = Pattern.compile("^//([^0-9])(?:\\n|\\r\\n|\\r)(.*)$", Pattern.DOTALL);
+
+    // 모든 개행 형식 지원 (리터럴 포함) - 필요시 활성화
+    // private static final Pattern CUSTOM_DELIMITER_PATTERN = Pattern.compile("^//([^0-9a-zA-Z\\s])(?:\\\\n|\\\\r\\\\n|\\n|\\r\\n|\\r)(.*)$", Pattern.DOTALL);
 
     // 입력 문자열 전체 구조 검증
     public void validateInputStructure(String text) {
@@ -26,17 +32,21 @@ public class InputValidator {
 
     // 커스텀 구분자 형식 검증
     private void validateCustomDelimiterStructure(String text) {
-        if (!CUSTOM_DELIMITER_PATTERN.matcher(text).matches()) {
+        Matcher matcher = CUSTOM_DELIMITER_PATTERN.matcher(text);
+        if (!matcher.matches()) {
             throw new IllegalArgumentException("커스텀 구분자 형식이 올바르지 않습니다. 형식: //[구분자]\\n[숫자]");
         }
 
-        // 커스텀 구분자 추출 및 검증
-        String delimiter = text.substring(2, 3);
-        if (delimiter.matches("[0-9a-zA-Z\\s]")) {
-            throw new IllegalArgumentException("구분자는 특수문자만 허용됩니다. 입력된 구분자: " + delimiter);
-        }
+        // 정규표현식 그룹으로 구분자와 숫자 문자열 추출
+        matcher.reset();
+        matcher.find();
+        String delimiter = matcher.group(1);
+        String numbersString = matcher.group(2);
 
-        String numbersString = text.substring(4); // "//;\n" 이후 문자열
+        // 커스텀 구분자 검증 (숫자만 불가 - 영문자, 공백, 특수문자 모두 허용)
+        if (delimiter.matches("[0-9]")) {
+            throw new IllegalArgumentException("구분자는 숫자를 사용할 수 없습니다. 입력된 구분자: " + delimiter);
+        }
 
         // 맨 앞/뒤는 반드시 숫자여야 함 (어떤 특수문자든 불가)
         if (!numbersString.matches("^\\d.*\\d$") && !numbersString.matches("^\\d$")) {
