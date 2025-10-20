@@ -122,16 +122,17 @@ public class StringCalculatorTest {
     }
 
     @Test
-    @DisplayName("2글자 커스텀 구분자를 사용하면 예외가 발생해야 한다.")
-    void two_char_custom_delimiter_should_throw_exception() {
+    @DisplayName("2글자 이상 커스텀 구분자를 사용할 수 있어야 한다.")
+    void multi_char_custom_delimiter_should_work() {
         // given
-        String input = "//;;\n1;2";
+        String input = "//;;\n1;;2;;3";
+        int expected = 6;
 
-        // when & then
-        assertThat(org.junit.jupiter.api.Assertions.assertThrows(
-            IllegalArgumentException.class,
-            () -> calculator.add(input)
-        )).hasMessageContaining("구분자");
+        // when
+        int result = calculator.add(input);
+
+        // then
+        assertThat(result).isEqualTo(expected);
     }
 
     @Test

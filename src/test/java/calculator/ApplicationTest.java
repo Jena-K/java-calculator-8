@@ -21,6 +21,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 class ApplicationTest extends NsTest {
 
+    private void assertSimpleTest(Runnable test) {
+        test.run();
+    }
+
     // 기본 기능 테스트 (한 줄 입력으로 가능한 경우)
 
     @Test

@@ -9,9 +9,9 @@ import java.util.regex.Matcher;
 // 모든 유효성 검사 로직을 담는 클래스
 public class InputValidator {
 
-    // 커스텀 구분자 패턴: 숫자만 제외, 영문자/특수문자/공백 모두 1글자 허용
+    // 커스텀 구분자 패턴: 1글자 이상, 숫자만 제외, 영문자/특수문자/공백 허용
     // 개행 형식: 실제 개행 문자만 지원 (\n, \r\n, \r)
-    private static final Pattern CUSTOM_DELIMITER_PATTERN = Pattern.compile("^//([^0-9])(?:\\n|\\r\\n|\\r)(.*)$", Pattern.DOTALL);
+    private static final Pattern CUSTOM_DELIMITER_PATTERN = Pattern.compile("^//([^0-9]+)(?:\\n|\\r\\n|\\r)(.*)$", Pattern.DOTALL);
 
     // 모든 개행 형식 지원 (리터럴 포함) - 필요시 활성화
     // private static final Pattern CUSTOM_DELIMITER_PATTERN = Pattern.compile("^//([^0-9a-zA-Z\\s])(?:\\\\n|\\\\r\\\\n|\\n|\\r\\n|\\r)(.*)$", Pattern.DOTALL);
@@ -43,9 +43,9 @@ public class InputValidator {
         String delimiter = matcher.group(1);
         String numbersString = matcher.group(2);
 
-        // 커스텀 구분자 검증 (숫자만 불가 - 영문자, 공백, 특수문자 모두 허용)
-        if (delimiter.matches("[0-9]")) {
-            throw new IllegalArgumentException("구분자는 숫자를 사용할 수 없습니다. 입력된 구분자: " + delimiter);
+        // 커스텀 구분자 검증 (숫자 포함 불가 - 영문자, 공백, 특수문자 모두 허용)
+        if (delimiter.matches(".*[0-9].*")) {
+            throw new IllegalArgumentException("구분자에 숫자를 포함할 수 없습니다. 입력된 구분자: " + delimiter);
         }
 
         // 맨 앞/뒤는 반드시 숫자여야 함 (어떤 특수문자든 불가)
@@ -53,11 +53,6 @@ public class InputValidator {
             throw new IllegalArgumentException("문자열의 맨 앞이나 맨 뒤에 구분자가 올 수 없습니다.");
         }
 
-        // 연속된 구분자 검증 (기본 구분자 + 커스텀 구분자 모든 조합)
-        String allDelimiters = "[" + Pattern.quote(delimiter) + ",:]";
-        if (numbersString.matches(".*" + allDelimiters + "{2,}.*")) {
-            throw new IllegalArgumentException("연속된 구분자는 허용되지 않습니다.");
-        }
     }
 
     // 기본 구분자 형식 검증
@@ -72,10 +67,6 @@ public class InputValidator {
             throw new IllegalArgumentException("문자열의 맨 앞이나 맨 뒤에 구분자가 올 수 없습니다.");
         }
 
-        // 연속된 구분자 검증
-        if (text.matches(".*" + delimiterRegex + "{2,}.*")) {
-            throw new IllegalArgumentException("연속된 구분자는 허용되지 않습니다.");
-        }
     }
 
     // 숫자로 분리된 문자열 목록을 받아 유효성 검사

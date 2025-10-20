@@ -33,16 +33,14 @@ public class StringCalculator {
     private int sum(DelimiterParserResult result) {
         String numbersString = result.getNumbersString();
 
-        // 기본 구분자 정규식 (쉼표, 콜론)
-        String delimiterRegex = "[,:]";
-
-        // 커스텀 구분자가 있으면 정규식에 추가 (예: "[,:]|-")
+        // 커스텀 구분자가 있으면 먼저 커스텀 구분자를 통일된 기본 구분자로 치환
         if (result.getCustomDelimiters().length > 0) {
-            String customDelimiter = Pattern.quote(result.getCustomDelimiters()[0]);
-            delimiterRegex += "|" + customDelimiter;
+            String customDelimiter = result.getCustomDelimiters()[0];
+            numbersString = numbersString.replace(customDelimiter, ",");
         }
 
-        // 문자열을 쉼표(,) 기분으로 분리
+        // 기본 구분자 정규식으로 분리 (쉼표, 콜론)
+        String delimiterRegex = "[,:]";
         String[] numbers = numbersString.split(delimiterRegex);
 
         // 숫자 개수 제한 검증 (999개까지 허용, 1000개 이상 불가)
