@@ -22,22 +22,35 @@ public class DelimiterParserTest {
         parser = new DelimiterParser();
     }
 
-    @ParameterizedTest
-    @CsvSource(value = {"//;\\n1;2;3=1;2;3", "//?\\n4?5?6=4?5?6", "// \\n1 2 3=1 2 3"}, delimiter = '=')
-    @DisplayName("커스텀 구분자가 있을 경우, 계산할 문자열만 추출해야 함")
-    void custom_delimiter_should_extract_numbers_string(String input, String expected) {
+    @Test
+    @DisplayName("커스텀 구분자(;)가 있을 경우, 계산할 문자열만 추출해야 함")
+    void custom_delimiter_semicolon_should_extract_numbers_string() {
         // given
-        // 입력값과 기대값은 CsvSource에서 제공
+        String input = "//;\n1;2;3";
+        String expectedNumbers = "1;2;3";
+        String expectedDelimiter = ";";
 
         // when
-        // 현재 parse() 메서드는 입력 전체를 반환하므로, 구분자가 포함된 문자열을 반환하여 테스트 실패(RED) 유도
         DelimiterParserResult result = parser.parse(input);
 
         // then
-        // assertThat(result).containsExactly(expected.split(" ")); // 배열을 문자열로 비교하기 위해 분리
-        assertThat(result.getNumbersString()).isEqualTo(expected);
+        assertThat(result.getNumbersString()).isEqualTo(expectedNumbers);
+        assertThat(result.getCustomDelimiters()).containsExactly(expectedDelimiter);
+    }
 
-        String expectedDelimiter = String.valueOf(input.charAt(2));
+    @Test
+    @DisplayName("커스텀 구분자(?)가 있을 경우, 계산할 문자열만 추출해야 함")
+    void custom_delimiter_question_should_extract_numbers_string() {
+        // given
+        String input = "//?\n4?5?6";
+        String expectedNumbers = "4?5?6";
+        String expectedDelimiter = "?";
+
+        // when
+        DelimiterParserResult result = parser.parse(input);
+
+        // then
+        assertThat(result.getNumbersString()).isEqualTo(expectedNumbers);
         assertThat(result.getCustomDelimiters()).containsExactly(expectedDelimiter);
     }
 
@@ -89,7 +102,7 @@ public class DelimiterParserTest {
     @DisplayName("커스텀 구분자가 있을 경우, 숫자 문자열과 해당 구분자를 반환해야 함")
     void custom_delimiter_should_return_delimiter_and_numbers_string() {
         // given
-        String input = "//;\\n1;2;3";
+        String input = "//;\n1;2;3";
 
         //when
         DelimiterParserResult result = parser.parse(input);
@@ -97,9 +110,6 @@ public class DelimiterParserTest {
         //then
         assertThat(result.getNumbersString()).isEqualTo("1;2;3");
         assertThat(result.getCustomDelimiters()).containsExactly(";");
-
-
-
     }
 
 

@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 public class DelimiterParser {
 
     // 커스텀 구분자 패턴 정의 : 숫자나 영문자를 제외한 특수 문자 1글자만 허용
-    private static final Pattern CUSTOM_DELIMITER_PATTERN = Pattern.compile("^//([^0-9a-zA-Z])\\\\n(.*)$");
+    private static final Pattern CUSTOM_DELIMITER_PATTERN = Pattern.compile("^//([^0-9a-zA-Z\\s])\\n(.*)$", Pattern.DOTALL);
 
     // 반환 타입을 DelimiterParserResult로 변경하고 구분자 추출
     public DelimiterParserResult parse(String text) {
